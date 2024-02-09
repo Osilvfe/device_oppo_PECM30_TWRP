@@ -1,9 +1,9 @@
 import /tee.rc
-import /trustonic.rc
 
 on init
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
-
+    start set_permissive
+    start modelchange
 on fs
     install_keyring
     mkdir /dev/usb-ffs 0775 shell shell
@@ -42,32 +42,38 @@ service gatekeeper-1-0 /system/bin/android.hardware.gatekeeper@1.0-service
     seclabel u:r:recovery:s0
 
 # Start Daemon (Registry directories should already be present)
-service mobicore /system/bin/mcDriverDaemon --P1 /mnt/vendor/persist/mcRegistry \
+service mobicore /vendor/bin/mcDriverDaemon --sfs-reformat --P1 /mnt/vendor/persist/mcRegistry \
     -r /vendor/app/mcRegistry/020f0000000000000000000000000000.drbin \
-    -r /vendor/app/mcRegistry/5020170115e016302017012521300000.drbin \
+    -r /vendor/app/mcRegistry/030c0000000000000000000000000000.drbin \
+    -r /vendor/app/mcRegistry/035c0000000000000000000000000000.drbin \
+    -r /vendor/app/mcRegistry/9073f03a9618383bb1856eb3f990babd.drbin \
     -r /vendor/app/mcRegistry/40188311faf343488db888ad39496f9a.drbin \
+    -r /vendor/app/mcRegistry/5020170115e016302017012521300000.drbin \
+    -r /vendor/app/mcRegistry/05070000000000000000000000000000.drbin \
+    -r /vendor/app/mcRegistry/05120000000000000000000000000000.drbin \
+    -r /vendor/app/mcRegistry/05120000000000000000000000000001.drbin \
     -r /vendor/app/mcRegistry/06090000000000000000000000000000.drbin \
     -r /vendor/app/mcRegistry/07150000000000000000000000000000.drbin \
     -r /vendor/app/mcRegistry/07170000000000000000000000000000.drbin \
     -r /vendor/app/mcRegistry/08050000000000000000000000003419.drbin \
-    -r /vendor/app/mcRegistry/9073f03a9618383bb1856eb3f990babd.drbin \
-    -r /vendor/app/mcRegistry/05120000000000000000000000000000.drbin \
-    -r /vendor/app/mcRegistry/05120000000000000000000000000001.drbin \
-    -r /vendor/app/mcRegistry/030c0000000000000000000000000000.drbin \
-    -r /vendor/app/mcRegistry/035c0000000000000000000000000000.drbin \
-    -r /vendor/app/mcRegistry/0f5eed3c3b5a47afacca69a84bf0efad.drbin \
-    -r /vendor/app/mcRegistry/05070000000000000000000000000000.drbin \
     -r /vendor/app/mcRegistry/09070000000000000000000000000000.drbin \
     -r /odm/vendor/app/mcRegistry/09070000000000000000000000000000.drbin \
     -r /odm/vendor/app/mcRegistry/05070000000000000000000000000000.drbin \
     -r /odm/vendor/app/mcRegistry/035c0000000000000000000000000000.drbin
-    
+
     user root
     group root
     disabled
     seclabel u:r:recovery:s0
 
 
+service set_permissive /vendor/bin/set_permissive.sh
+    user root
+    group root
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+           
 on property:hwservicemanager.ready=true
     start mobicore
     start keymaster-4-1
